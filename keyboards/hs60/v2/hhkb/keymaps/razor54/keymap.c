@@ -18,35 +18,121 @@
 enum {
     CT_CLN = 0,
     TD_ONE_EXC,
-    TD_SPC_ENT
+    TD_SPC_ENT,
+    TD_BACKSPACE,
+    TD_SEVEN,
+    TD_FOUR,
+    TD_EIGHT,
+    TD_NINE,
+    TD_ZERO
 };
 
-void dance_cln_finished (qk_tap_dance_state_t *state, void *user_data) {
-    if (state->count == 4) {
-        register_code (state->keycode);
+void dance_finished_back_space (qk_tap_dance_state_t *state, void *user_data) {
+    if (state->count == 3) {
+        register_code (KC_RGUI);
+        register_code (KC_BSPACE);
     } else if (state->count == 2) {
-        register_code (KC_RSFT);
-        register_code (KC_SCLN);
+        register_code (KC_RALT);
+        register_code (KC_BSPACE);
     } else {
-        register_code (KC_SCLN);
+        register_code (KC_BSPACE);
     }
 }
 
-void dance_cln_reset (qk_tap_dance_state_t *state, void *user_data) {
-    if(state->count == 4) {
-        unregister_code (state->keycode);
-    }else if (state->count == 2) {
-        unregister_code (KC_RSFT);
-        unregister_code (KC_SCLN);
+void dance_reset_back_space (qk_tap_dance_state_t *state, void *user_data) {
+    if (state->count == 3) {
+        unregister_code (KC_RGUI);
+        unregister_code (KC_BSPACE);
+    } else if (state->count == 2) {
+        unregister_code (KC_RALT);
+        unregister_code (KC_BSPACE);
     } else {
-        unregister_code (KC_SCLN);
+        unregister_code (KC_BSPACE);
     }
+
+}
+
+void dance_finished_shift (qk_tap_dance_state_t *state, void *user_data, uint16_t kc) {
+    if (state->count == 2) { 
+        register_code (KC_RSFT);
+        register_code (kc);
+    } else {
+        register_code (kc);
+    }
+}
+
+void dance_reset_shift (qk_tap_dance_state_t *state, void *user_data, uint16_t kc) {
+    if (state->count == 2) {
+        unregister_code (KC_RSFT);
+        unregister_code (kc);
+    } else {
+        unregister_code (kc);
+    }
+}
+
+void dance_cln_finished (qk_tap_dance_state_t *state, void *user_data) {
+    dance_finished_shift (state, user_data, KC_SCLN);
+}
+
+void dance_cln_reset (qk_tap_dance_state_t *state, void *user_data) {
+    dance_reset_shift (state, user_data, KC_SCLN);
+}
+
+void dance_one_finished (qk_tap_dance_state_t *state, void *user_data) {
+    dance_finished_shift (state, user_data, KC_1);
+}
+
+void dance_one_reset (qk_tap_dance_state_t *state, void *user_data) {
+    dance_reset_shift (state, user_data, KC_1);
+}
+
+void dance_four_finished (qk_tap_dance_state_t *state, void *user_data) {
+    dance_finished_shift (state, user_data, KC_4);
+}
+
+void dance_four_reset (qk_tap_dance_state_t *state, void *user_data) {
+    dance_reset_shift (state, user_data, KC_4);
+}
+void dance_seven_finished (qk_tap_dance_state_t *state, void *user_data) {
+    dance_finished_shift (state, user_data, KC_7);
+}
+
+void dance_seven_reset (qk_tap_dance_state_t *state, void *user_data) {
+    dance_reset_shift (state, user_data, KC_7);
+}
+void dance_eight_finished (qk_tap_dance_state_t *state, void *user_data) {
+    dance_finished_shift (state, user_data, KC_8);
+}
+
+void dance_eight_reset (qk_tap_dance_state_t *state, void *user_data) {
+    dance_reset_shift (state, user_data, KC_8);
+}
+void dance_nine_finished (qk_tap_dance_state_t *state, void *user_data) {
+    dance_finished_shift (state, user_data, KC_9);
+}
+
+void dance_nine_reset (qk_tap_dance_state_t *state, void *user_data) {
+    dance_reset_shift (state, user_data, KC_9);
+}
+void dance_zero_finished (qk_tap_dance_state_t *state, void *user_data) {
+    dance_finished_shift (state, user_data, KC_0);
+}
+
+void dance_zero_reset (qk_tap_dance_state_t *state, void *user_data) {
+    dance_reset_shift (state, user_data, KC_0);
 }
 
 // All tap dance functions go here.
 qk_tap_dance_action_t tap_dance_actions[] = {
     [CT_CLN] = ACTION_TAP_DANCE_FN_ADVANCED (NULL, dance_cln_finished, dance_cln_reset),
-    //[TD_ONE_EXC] = ACTION_TAP_DANCE_DOUBLE ()
+    [TD_ONE_EXC] = ACTION_TAP_DANCE_FN_ADVANCED (NULL, dance_one_finished, dance_one_reset),
+    [TD_SEVEN] = ACTION_TAP_DANCE_FN_ADVANCED (NULL, dance_seven_finished, dance_seven_reset),
+    [TD_FOUR] = ACTION_TAP_DANCE_FN_ADVANCED (NULL, dance_four_finished, dance_four_reset),
+    [TD_EIGHT] = ACTION_TAP_DANCE_FN_ADVANCED (NULL, dance_eight_finished, dance_eight_reset),
+    [TD_NINE] = ACTION_TAP_DANCE_FN_ADVANCED (NULL, dance_nine_finished, dance_nine_reset),
+    [TD_ZERO] = ACTION_TAP_DANCE_FN_ADVANCED (NULL, dance_zero_finished, dance_zero_reset),
+
+    [TD_BACKSPACE] = ACTION_TAP_DANCE_FN_ADVANCED (NULL, dance_finished_back_space, dance_reset_back_space),
     [TD_SPC_ENT] = ACTION_TAP_DANCE_DOUBLE (KC_SPC, KC_ENT)
 };
 
@@ -54,11 +140,11 @@ qk_tap_dance_action_t tap_dance_actions[] = {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT_60_hhkb( /* Base */
-            KC_ESC,   KC_1,     KC_2,  KC_3,  KC_4,  KC_5,  KC_6,  KC_7,  KC_8,  KC_9,     KC_0,        KC_MINS,                            KC_EQL,  KC_GRV,  KC_BSLS,\
-            KC_TAB,   KC_Q,     KC_W,  KC_E,  KC_R,  KC_T,  KC_Y,  KC_U,  KC_I,  KC_O,     KC_P,        KC_LBRC,                            KC_RBRC,          KC_BSPC,\
+            KC_ESC,   TD(TD_ONE_EXC),     KC_2,  KC_3,  TD(TD_FOUR),  KC_5,  KC_6,  TD(TD_SEVEN),  TD(TD_EIGHT),  TD(TD_NINE),     TD(TD_ZERO),        KC_MINS,                            KC_EQL,  KC_GRV,  KC_BSLS,\
+            KC_TAB,   KC_Q,     KC_W,  KC_E,  KC_R,  KC_T,  KC_Y,  KC_U,  KC_I,  KC_O,     KC_P,        KC_LBRC,                            KC_RBRC,          TD(TD_BACKSPACE),\
             KC_LCTL,  KC_A,     KC_S,  KC_D,  KC_F,  KC_G,  KC_H,  KC_J,  KC_K,  KC_L,     TD(CT_CLN),  KC_QUOT,                            KC_ENT,          \
             KC_LSFT,            KC_Z,  KC_X,  KC_C,  KC_V,  KC_B,  KC_N,  KC_M,  KC_COMM,  KC_DOT,      KC_SLSH,                            KC_RSFT,            MO(1),\
-            KC_LCTL,  KC_LGUI,  KC_LALT,                TD(TD_SPC_ENT),                                 KC_RALT,     KC_RGUI,               KC_RCTL          ),
+            KC_LCTL,  KC_LGUI,  KC_LALT,                TD(TD_SPC_ENT),                                 KC_RCTL,     KC_RALT,               KC_RCTL          ),
 
     [1] = LAYOUT_60_hhkb( /* FN */
             RESET,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,    KC_F9,   KC_F10,   KC_F11,   KC_F12,  KC_TRNS,  KC_TRNS,\
@@ -68,10 +154,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_TRNS, KC_TRNS, KC_TRNS,                 KC_TRNS,                                        KC_TRNS,  KC_LOCK,  KC_TRNS         ),
 
     [2] = LAYOUT_60_hhkb( /* VIM Mode */
-            TG(2),   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,           KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,\
-            KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, LCTL(KC_PGUP),     KC_TRNS,  KC_ENT,   KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,\
-            KC_TRNS, KC_TRNS, KC_TRNS, LCTL(KC_PGDOWN),  KC_TRNS, KC_TRNS, KC_LEFT,           KC_DOWN,  KC_UP,    KC_RIGHT, KC_TRNS,  KC_TRNS,            KC_TRNS,          \
-            KC_TRNS,          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,           KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,\
+            TG(2),   KC_TRNS, KC_TRNS, KC_TRNS,    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,\
+            KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,    KC_TRNS, KC_TRNS, KC_TRNS, KC_PGUP,  KC_TRNS,  KC_ENT,   KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,\
+            KC_TRNS, KC_TRNS, KC_TRNS, KC_PGDOWN,  KC_TRNS, KC_TRNS, KC_LEFT, KC_DOWN,  KC_UP,    KC_RIGHT, KC_TRNS,  KC_TRNS,  KC_TRNS,          \
+            KC_TRNS,          KC_TRNS, KC_TRNS,    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,\
             KC_TRNS, KC_TRNS, KC_TRNS,                 KC_TRNS,                                         KC_TRNS,  KC_TRNS,            KC_TRNS          ),
 
     [3] = LAYOUT_60_hhkb( /* Empty for dynamic keymaps */
